@@ -4,15 +4,12 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 from .config import Config
-from .resources import *
+# from .resources import *
 
 
 api = Api()
 db = SQLAlchemy()
 migrate = Migrate()
-
-# Define routing...
-api.add_resource(Category, '/categories')
 
 
 def make_app(configuration: Config = None):
@@ -25,5 +22,8 @@ def make_app(configuration: Config = None):
     db.init_app(app)
     migrate.init_app(app, db)
     api.init_app(app)
+
+    # Define routing...
+    # api.add_resource(Category, '/categories')
 
     return app

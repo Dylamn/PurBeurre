@@ -1,5 +1,8 @@
-from flask_restful import Resource
 import requests
+from flask import request
+from flask_restful import Resource
+from ..services.category_service import Category as Service
+from src.api import api
 
 
 class Category(Resource):
@@ -9,3 +12,9 @@ class Category(Resource):
     def get(self):
 
         return requests.get(f'{self.base_url}/categories.json').json()
+
+    def post(self):
+        res = Service.create(request.form['data'])
+
+
+api.add_resource(Category, 'categories')

@@ -10,6 +10,8 @@ class Category(db.Model):
     url = db.Column(db.String(255), nullable=True)
     products_count = db.Column(db.Integer, nullable=False, default=0)
     known = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, nullable=True)
+    updated_at = db.Column(db.DateTime, nullable=True)
 
     def __repr__(self):
         return "<{} '{}'>".format(self.__name__, self.id)
