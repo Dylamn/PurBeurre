@@ -26,7 +26,7 @@ class Category:
         return {
             'status': 'error',
             'message': 'category already exist.'
-        }, 200
+        }, 400
 
     @staticmethod
     def save(data):
