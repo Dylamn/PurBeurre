@@ -1,41 +1,32 @@
+import unittest
 import requests
 
-API_BASE = "http://127.0.0.1:5000/"
 
-OKGREEN = "\033[92m"
-WARNING = "\033[93m"
-FAIL = "\033[91m"
-ENDC = "\033[0m"
+class ApiTest(unittest.TestCase):
+    """Test case used for API endpoints."""
 
+    BASE = "http://127.0.0.1:5000/"
 
-def test_post_category_validation_error():
-    test_status = "Test {status}.  Expected: 400 | Got: {got}"
+    def setUp(self) -> None:
+        """Hook method for setting up the test fixture before exercising it."""
+        self.request_body = {
+            "id": "en:category_test",
+            "name": "Category Test",
+        }
 
-    print(WARNING + "Starting [POST] category validation test..." + ENDC)
+    def test_category_store_success(self) -> None:
+        response = requests.post(self.BASE + 'categories', self.request_body)
 
-    # This request must receive an HTTP 400 response.
-    response = requests.post(API_BASE + 'categories', {
-        "id": "en:none",
-        # "name": "none"
-    })
+        self.assertEqual(201, response.status_code, response.content)
 
-    status = response.status_code
+    def test_category_store_failure(self) -> None:
+        # We remove from the request body the "name" attribute which is required.
+        request_body = self.request_body.copy()
+        del request_body["name"]
 
-    if status == 400:
-        print(
-            OKGREEN + test_status.format(status="Succeeded", got=status) + ENDC,
-            sep='\n'
-        )
-    else:
-        print(
-            FAIL + test_status.format(status="Failure", got=status) + ENDC,
-            sep='\n'
-        )
+        # Check if the parameter is not present...
+        self.assertNotIn('name', request_body)
 
-    print(
-        f'status : {status}', f'payload : {response.json()}',
-        sep='\n'
-    )
+        response = requests.post(self.BASE + 'categories', request_body)
 
-
-test_post_category_validation_error()
+        self.assertEqual(400, response.status_code, response.content)
