@@ -27,5 +27,13 @@ class Category(Resource):
 
         return Service.create(params)
 
+    def put(self):
+        categories = self.get()
+
+        for category in categories:
+            Service.create(category)
+
+        return {'message': 'No content'}, 204
+
 
 api.add_resource(Category, '/categories')

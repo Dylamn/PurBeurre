@@ -1,15 +1,15 @@
 from datetime import datetime
 
-from ..models.category import db, Category as Model
+from ..models.category import db, Category as CategoryModel
 
 
 class Category:
     @classmethod
     def create(cls, data):
-        exists = Model.query.filter_by(id=data['id']).first()
+        exists = CategoryModel.query.filter_by(id=data['id']).first()
 
         if not exists:
-            new_category = Model(
+            new_category = CategoryModel(
                 id=data['id'],
                 name=data['name'],
                 created_at=datetime.utcnow(),

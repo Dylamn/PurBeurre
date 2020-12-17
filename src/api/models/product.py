@@ -1,15 +1,12 @@
 from .. import db
 
 
-class Category(db.Model):
+class Product(db.Model):
     """Category Model"""
-    __tablename__ = 'categories'
+    __tablename__ = 'products'
 
     id = db.Column(db.String(255), primary_key=True, autoincrement=False)
     name = db.Column(db.String(255), nullable=False)
-    url = db.Column(db.String(255), nullable=True)
-    products_count = db.Column(db.Integer, nullable=False, default=0)
-    known = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, nullable=True)
     updated_at = db.Column(db.DateTime, nullable=True)
 
