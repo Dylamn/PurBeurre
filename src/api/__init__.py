@@ -13,7 +13,7 @@ migrate = Migrate()
 
 def make_app(configuration: Config = None):
     """Application Factory pattern"""
-    from .resources import Category
+    from .resources import Category, Categories
 
     if configuration is None:
         configuration = Config()

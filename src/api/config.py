@@ -17,6 +17,8 @@ class Config:
     DB_USER = getenv('DB_USER', 'username')
     DB_PASSWORD = getenv('DB_PASSWORD', 'password')
 
+    OPENFOODFACTS_BASE = getenv('OPENFOODFACTS_BASE', 'https://fr.openfoodfacts.org')
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = f'{DB_CONNECTION}://{DB_USER}:{DB_PASSWORD}' \
                               f'@{DB_HOST}:{DB_PORT}/{DB_DATABASE}'
