@@ -27,11 +27,11 @@ def is_valid_email(subject):
         return False
 
 
-def input_field(description: str, validator: Callable, *args):
+def input_until_valid(description: str, validator: Callable, *args):
     user_input = input(description)
 
     while not validator(user_input):
-        user_input = input(description)
+        user_input = input("(Error) " + description)
 
     return user_input
 

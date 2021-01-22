@@ -1,7 +1,7 @@
 from src.cli.auth import Auth
 
 
-def main(*args):
+def main():
     """Bootstrap the application."""
     print("Hello! And welcome to the Pur Beurre CLI.")
     running = True
@@ -12,20 +12,24 @@ def main(*args):
 
             "1. Search a product",
             "2. Register your account",
-            "3. Leave application",
+            "3. Login to your account",
+            "4. Leave application",
 
             sep="\n", end="\n"
         )
 
-        action = input("> ")
+        action = input("guest: ")
 
-        if action == "1":
+        if action == '1':
             pass
 
-        if action == "2":
-            Auth.register()
+        elif action == '2':
+            auth = Auth.register()
 
-        if action == "3":
+        elif action == '3':
+            auth = Auth.login()
+
+        elif action in ['4', 'exit']:
             running = False
 
 

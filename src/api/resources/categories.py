@@ -1,7 +1,7 @@
 import requests
 from flask_restful import Resource
 from src.api import api
-from src.api.config import Config
+from src.config import Config
 
 
 class Categories(Resource):

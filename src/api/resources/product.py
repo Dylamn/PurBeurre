@@ -1,7 +1,7 @@
 import requests
 from flask_restful import Resource, reqparse
 from src.api import api
-from src.api.config import Config
+from src.config import Config
 
 
 class Product(Resource):
