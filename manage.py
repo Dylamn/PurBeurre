@@ -5,9 +5,6 @@ from src.api import make_app, db
 
 app = make_app()
 
-# Import models
-from src.api.models.category import Category
-
 app.app_context().push()
 
 manager = Manager(app)

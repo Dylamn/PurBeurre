@@ -2,7 +2,7 @@ from flask import Flask
 from flask_restful import Api
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-
+from src.api.exceptions.handlers import register_handlers
 from src.config import Config
 
 api = Api()
@@ -21,6 +21,7 @@ def make_app(configuration: Config = None):
     # Create the Flask application.
     app = Flask(__name__)
     app.config.from_object(configuration)
+    register_handlers(app)
 
     # Initialize database layer.
     db.init_app(app)

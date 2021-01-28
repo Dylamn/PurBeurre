@@ -9,21 +9,7 @@ auth = Blueprint('auth', __name__, url_prefix='/auth')
 @auth.route('/me', methods=['GET'])
 def me():
     # Retrieve the Authorization header
-    authorization_header = request.headers.get('Authorization')
-    auth_token = None
-
-    if authorization_header:
-        auth_token = authorization_header.split(' ')[1]
-
-    if auth_token is None:
-        response_body = {
-            'status': 'error',
-            'message': 'Provide a valid auth token.'
-        }
-
-        return response_body, 401
-
-    resp = UserModel.decode_auth_token(auth_token)
+    resp, _ = parse_token_from_header()
 
     if not isinstance(resp, str):
         user = UserModel.query.filter_by(id=resp).first()
@@ -73,21 +59,7 @@ def login():
 
 @auth.route('/logout', methods=['POST'])
 def logout():
-    authorization_header = request.headers.get('Authorization')
-    token = None
-
-    if authorization_header:
-        token = authorization_header.split(' ')[1]
-
-    if token is None:
-        response_body = {
-            'status': 'error',
-            'message': 'Provide a valid auth token.'
-        }
-
-        return response_body, 401
-
-    resp = UserModel.decode_auth_token(token)
+    resp, token = parse_token_from_header()
 
     if not isinstance(resp, str):
         # Mark the token as blacklisted
@@ -101,11 +73,10 @@ def logout():
             }
 
             return response_body, 200
-        except Exception as ex:
+        except Exception:
             response_body = {
                 'status': 'error',
-                # TODO: Don't return exception message ??
-                'message': ex
+                'message': 'An unexpected error occurred. Please try again later.'
             }
 
             return response_body, 500
@@ -119,6 +90,31 @@ def logout():
         return response_body, 401
 
 
+@auth.route('/refresh', methods=['POST'])
+def refresh():
+    pass
+
+
 def parse_token_from_header():
     """Retrieve the auth token from the header and parse it."""
-    pass
+    authorization_header = request.headers.get('Authorization')
+    token = None
+
+    if authorization_header:
+        token = authorization_header.split(' ')[1]
+
+
+    if token is None:
+        from src.api.exceptions.invalid_token import InvalidToken
+
+        raise InvalidToken("Provide a valid auth token.")
+        # response_body = {
+        #     'status': 'error',
+        #     'message': 'Provide a valid auth token.'
+        # }
+
+        return response_body, 401
+
+    resp = UserModel.decode_auth_token(token)
+
+    return resp, token
