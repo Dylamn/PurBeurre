@@ -21,13 +21,15 @@ def make_app(configuration: Config = None):
     # Create the Flask application.
     app = Flask(__name__)
     app.config.from_object(configuration)
+
+    # Register error handlers
     register_handlers(app)
 
     # Initialize database layer.
     db.init_app(app)
     migrate.init_app(app, db)
 
-    # Register routes
+    # Register authentication routes
     app.register_blueprint(auth)
 
     # Finally, initialize the api.

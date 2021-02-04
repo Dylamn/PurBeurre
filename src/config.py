@@ -23,8 +23,10 @@ class Config:
                               f'@{DB_HOST}:{DB_PORT}/{DB_DATABASE}'
 
     # Url's
-    OPENFOODFACTS_BASE = getenv('OPENFOODFACTS_BASE', 'https://fr.openfoodfacts.org')
     API_URL = getenv('API_URL', 'http://127.0.0.1:5000')
+    OPENFOODFACTS_BASE = getenv(
+        'OPENFOODFACTS_BASE', 'https://fr.openfoodfacts.org'
+    )
 
     # JWT
     JWT_SECRET = getenv('JWT_SECRET', None)

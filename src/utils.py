@@ -27,7 +27,8 @@ def is_valid_email(subject):
         return False
 
 
-def input_until_valid(description: str, validator: Callable, *args):
+def input_until_valid(description: str, validator: Callable) -> str:
+
     user_input = input(description)
 
     while not validator(user_input):
@@ -35,5 +36,24 @@ def input_until_valid(description: str, validator: Callable, *args):
 
     return user_input
 
-def is_valid_b_string(string: str):
-    return string.isascii()
+def gen_auth_header(token: str) -> dict:
+    """
+    Generate a dict which contains the Bearer Authorization header
+    for authenticated requests.
+
+    :return: dict['str', 'str']
+    """
+    return {'Authorization': f'Bearer {token}'}
+
+def clear_console() -> None:
+    """
+    Clean the console output screen.
+    """
+    from os import system
+    from platform import os
+
+    # 'clear' command is used by posix, linux and many other OS
+    command = 'cls' if os.name == 'Windows' else 'clear'
+
+    system(command)
+

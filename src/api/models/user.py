@@ -53,7 +53,7 @@ class User(db.Model):
 
     def encode_auth_token(self):
         """
-        Generates the JWT Authen Token
+        Generates the JWT Auth Token.
         :return: string
         """
         try:
