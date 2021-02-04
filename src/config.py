@@ -25,10 +25,10 @@ class Config:
     # Url's
     API_URL = getenv('API_URL', 'http://127.0.0.1:5000')
     OPENFOODFACTS_BASE = getenv(
-        'OPENFOODFACTS_BASE', 'https://fr.openfoodfacts.org'
+        'OPENFOODFACTS_BASE', 'https://fr-en.openfoodfacts.org'
     )
 
     # JWT
-    JWT_SECRET = getenv('JWT_SECRET', None)
+    JWT_SECRET_KEY = getenv('JWT_SECRET_KEY', None)
     JWT_ALGO = getenv('JWT_ALGO', 'HS256')
     JWT_TTL = int(getenv('JWT_TTL', 3600))

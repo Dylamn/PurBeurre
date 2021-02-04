@@ -34,10 +34,10 @@ class Cli:
 
     def handle_action(self, action):
         if action == 'search':
-            pass
+            print('This feature will be available soon!')
 
         elif self._auth and action == 'registered.products':
-            pass
+            print('This feature will be available soon!')
 
         elif not self._auth and action == 'register':
             self._auth = Auth.register()

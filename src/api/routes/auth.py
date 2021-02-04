@@ -4,30 +4,28 @@ from bcrypt import checkpw
 from src.api.models.user import User as UserModel
 from src.api.models.blacklist_token import BlacklistToken
 from src.utils import is_valid_email
+from flask_jwt_extended import (
+    jwt_required, get_jwt_identity, create_access_token, create_refresh_token,
+    jwt_refresh_token_required, get_raw_jwt
+)
+
 auth = Blueprint('auth', __name__, url_prefix='/auth')
 
 
 @auth.route('/me', methods=['GET'])
+@jwt_required
 def me():
     # Retrieve the Authorization header
-    resp, _ = parse_token_from_header()
+    user_identity = get_jwt_identity()
+    user = UserModel.query.filter_by(id=user_identity).first()
 
-    if not isinstance(resp, str):
-        user = UserModel.query.filter_by(id=resp).first()
-        response_body = {
-            'status': 'ok',
-            'user': user.serialize()
-        }
-
-        return response_body, 200
-
-    # Token is not valid or expired
     response_body = {
-        'status': 'error',
-        'message': resp
+        'status': 'ok',
+        'user': user.serialize()
     }
 
-    return response_body, 401
+    return response_body, 200
+
 
 @auth.route('/register', methods=['POST'])
 def register():
@@ -58,16 +56,16 @@ def register():
     # Create the new record in the DB.
     user = UserModel.create(args)
 
-    # Then, generate the auth token
-    auth_token = user.encode_auth_token()
-
+    # Then, generate the response with tokens
     response_body = {
         'status': 'ok',
         'message': 'new user registered.',
-        'auth_token': auth_token
+        'access_token': create_access_token(user.id),
+        'refresh_token': create_refresh_token(user.id),
     }
 
     return response_body, 201
+
 
 @auth.route('/login', methods=['POST'])
 def login():
@@ -86,53 +84,53 @@ def login():
 
         return response_body, 400
 
-    auth_token = user.encode_auth_token()
-
     response_body = {
         'status': 'ok',
         'message': 'Successfully logged in.',
-        'auth_token': auth_token
+        'access_token': create_access_token(identity=user.id),
+        'refresh_token': create_refresh_token(identity=user.id)
     }
 
     return response_body, 200
 
 
 @auth.route('/logout', methods=['POST'])
+@jwt_required
 def logout():
-    resp, token = parse_token_from_header()
+    token = get_raw_jwt()
 
-    if not isinstance(resp, str):
-        # Mark the token as blacklisted
-        blacklist_token = BlacklistToken(token)
+    # Mark the token as blacklisted
+    blacklist_token = BlacklistToken(token.get('jti'))
 
-        try:
-            blacklist_token.save()
-            response_body = {
-                'status': 'ok',
-                'message': 'Successfully logged out.'
-            }
-
-            return response_body, 200
-        except Exception:
-            response_body = {
-                'status': 'error',
-                'message': 'An unexpected error occurred. Please try again later.'
-            }
-
-            return response_body, 500
-
-    else:
+    try:
+        blacklist_token.save()
         response_body = {
-            'status': 'error',
-            'message': resp
+            'status': 'ok',
+            'message': 'Successfully logged out.'
         }
 
-        return response_body, 401
+        return response_body, 200
+    except Exception:
+        response_body = {
+            'status': 'error',
+            'message': 'An unexpected error occurred. Please try again later.'
+        }
+
+        return response_body, 500
 
 
 @auth.route('/refresh', methods=['POST'])
+@jwt_refresh_token_required
 def refresh():
-    pass
+    """Generate a new access token from a refresh token."""
+    current_user = get_jwt_identity()
+
+    response_body = {
+        'status': 'ok',
+        'access_token': create_access_token(identity=current_user)
+    }
+
+    return response_body, 200
 
 
 def parse_token_from_header():
@@ -146,7 +144,7 @@ def parse_token_from_header():
         split_header = authorization_header.split(' ')
 
         if len(split_header) != 2:
-            raise  InvalidToken("Token could not be parsed from header.")
+            raise InvalidToken("Token could not be parsed from header.")
 
         token = split_header[1]
 

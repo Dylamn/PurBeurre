@@ -16,9 +16,11 @@ class Auth:
 
     """
 
-    __user: Union[User, None] = None
+    __user: Union[User, None]
 
-    __token: Union[str, None] = None
+    __token: Union[str, None]
+
+    __refresh_token: Union[str, None]
 
     ERROR_PREFIX: str = "(Error)"
 
@@ -31,15 +33,17 @@ class Auth:
         """str: Returns the token of the currently logged in user."""
         return self.__token
 
-    def __init__(self, token):
+    def __init__(self, token, refresh_token):
         """Log in the user which correspond to the given token.
 
         Args:
-            token: JWT Auth Token which will be used to retrieve user data
-                from the database.
+            token: The token which will be used for authenticated requests
+
+            refresh_token: The token used for refreshing the expired access token
         """
         self.__token = token
         self.__user = User(**self.__get_user())
+        self.__refresh_token = refresh_token
 
         # Notify the user that's login is completed.
         print(f"You're now logged in! Welcome {self.user.username}.")
@@ -96,10 +100,12 @@ class Auth:
 
         print("Your account has been created.")
 
-        # Retrieve the JWT Auth Token.
-        token = response.json().get('auth_token')
+        # Retrieve the access and refresh tokens.
+        payload = response.json()
+        token = payload.get('access_token')
+        refresh_token = payload.get('refresh_token')
 
-        return cls(token)
+        return cls(token, refresh_token)
 
     @classmethod
     def login(cls):
@@ -109,20 +115,38 @@ class Auth:
         }
 
         response = requests.post(f'{Config.API_URL}/auth/login', credentials)
-        body = response.json()
+        payload = response.json()
 
         if response.status_code != 200:
             return print(
-                body.get(
+                payload.get(
                     'message',
                     'An unexpected error has occurred.'
                 )
             )
 
         # Retrieve the auth token and set the currently logged in user.
-        token = body.get('auth_token')
+        token = payload.get('access_token')
+        refresh_token = payload.get('refresh_token')
 
-        return cls(token)
+        return cls(token, refresh_token)
+
+    def refresh(self):
+        response = requests.post(
+            f'{Config.API_URL}/auth/refresh',
+            headers=gen_auth_header(self.__refresh_token)
+        )
+
+        # Replace the old/expired token by the fresh one.
+        payload = response.json()
+
+        fresh_token = payload.get('access_token')
+
+        if fresh_token:
+            self.__token = fresh_token
+        else:
+            print('Your session has expired, please try to log in again.')
+            self.__del__()
 
     def __del__(self):
         authorization_header = gen_auth_header(self.token)

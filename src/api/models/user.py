@@ -63,7 +63,7 @@ class User(db.Model):
                 'sub': self.id
             }
 
-            return jwt.encode(payload, Config.JWT_SECRET, Config.JWT_ALGO)
+            return jwt.encode(payload, Config.JWT_SECRET_KEY, Config.JWT_ALGO)
         except TypeError as ex:
             return ex
 
@@ -76,13 +76,13 @@ class User(db.Model):
         """
         try:
             payload = jwt.decode(
-                token, Config.JWT_SECRET, algorithms=Config.JWT_ALGO
+                token, Config.JWT_SECRET_KEY, algorithms=Config.JWT_ALGO
             )
-
-            if BlacklistToken.check_blacklist(token):
+            print(payload)
+            if BlacklistToken.check_blacklist(payload['jti']):
                 return 'Token is blacklisted. Please log in again.'
 
-            return payload['sub']  # The ID of the user
+            return payload['identity']  # The ID of the user
 
         except jwt.ExpiredSignatureError:
             return 'Signature expired. Please try to log in again.'
