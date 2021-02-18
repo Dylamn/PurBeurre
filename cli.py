@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from typing import Union
 from src.cli.components import Auth
 from src.cli.components.menus import MainMenu
 
@@ -18,13 +19,14 @@ class Cli:
 
     @property
     def prompt(self):
-        if self._auth is None:
-            return self.__prompt.replace('{}', 'guest')
+        if self._auth and self._auth.user:
+            return self.__prompt.replace('{}', self._auth.user.username)
 
-        return self.__prompt.replace('{}', self._auth.user.username)
+        return self.__prompt.replace('{}', 'guest')
+
 
     # None value means its a guest.
-    _auth: Auth = None
+    _auth: Union[None, Auth] = None
 
     # The message that's to the user when the app starts.
     welcome_message = "Hello! And welcome to the Pur Beurre CLI."
@@ -46,10 +48,15 @@ class Cli:
             self._auth = Auth.login()
 
         elif self._auth and action == 'logout':
+            self._auth.logout()
             del self._auth
 
         elif action == 'quit':
             self.__running = False
+            # Logout the user before leaving application.
+            if isinstance(self._auth, Auth):
+                self._auth.logout()
+                del self._auth
 
     def run(self):
         self.__running = True
@@ -63,10 +70,6 @@ class Cli:
 
             # Dispatch action.
             self.handle_action(action)
-
-        # Logout the user before leaving application.
-        if bool(self._auth):
-            del self._auth
 
         print('Bye')
 

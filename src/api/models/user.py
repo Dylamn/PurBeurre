@@ -78,7 +78,7 @@ class User(db.Model):
             payload = jwt.decode(
                 token, Config.JWT_SECRET_KEY, algorithms=Config.JWT_ALGO
             )
-            print(payload)
+
             if BlacklistToken.check_blacklist(payload['jti']):
                 return 'Token is blacklisted. Please log in again.'
 
