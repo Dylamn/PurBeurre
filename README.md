@@ -48,3 +48,12 @@ When it's done, you can start the CLI by passing it to the Python interpreter:
 ```shell
 $ python3 cli.py
 ```
+
+## Features
+The main purpose of the application is to provide you a research tool for 
+food products.
+
+The application includes user accounts which, are not required in order to use
+the application. It just adds an extra feature that's you can register products,
+so you can retrieve them easily without worrying about the name of each one.
+
