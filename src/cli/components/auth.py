@@ -1,7 +1,7 @@
 import bcrypt
 import requests
-import threading
 from typing import Union
+from threading import Timer
 from getpass import getpass
 from src.config import Config
 from src.cli.entities.user import User
@@ -23,9 +23,9 @@ class Auth:
 
     __refresh_token: Union[str, None]
 
-    __refresh_thread: threading.Timer
+    __refresh_thread: Timer
 
-    REFRESH_INTERVAL = 1
+    REFRESH_INTERVAL = 2
 
     ERROR_PREFIX: str = "(Error)"
 
@@ -46,10 +46,9 @@ class Auth:
         if self.__refresh_thread.is_alive():
             self.__refresh_thread.cancel()
 
-        print('create new refresh thread...')
+        # Create a new thread for the automatic refresh.
         self.__refresh_thread = self.create_refresh_thread(self.REFRESH_INTERVAL)
         self.__refresh_thread.start()
-        print('new thread: ', self.__refresh_thread.is_alive())
 
     def __init__(self, token, refresh_token):
         """Log in the user which correspond to the given token.
@@ -62,7 +61,7 @@ class Auth:
         self.__user = User(**self.__get_user())
         self.__refresh_token = refresh_token
 
-        # Start countdown for refresh (59 minutes)
+        # Start automatic refresh token (59 minutes)
         self.__refresh_thread = self.create_refresh_thread(self.REFRESH_INTERVAL)
         self.__refresh_thread.start()
 
@@ -75,11 +74,11 @@ class Auth:
         data = {
             'username': input_until_valid(
                 'Enter your username (min 3 characters): ',
-                lambda x: len(x.strip()) > 2
+                lambda name: len(name.strip()) > 2
             ),
             'email': input_until_valid(
                 'Enter your email address: ', is_valid_email
-            )
+            ).lower()
         }
 
         password_is_valid = False
@@ -113,16 +112,22 @@ class Auth:
 
         # Register the user to the API.
         response = requests.post(f"{Config.API_URL}/auth/register", data)
+        payload = response.json()
 
         # An error occurs while inserting the user in the database.
         if response.status_code != 201:
-            print("An unexpected error occurred.")
+            message = payload.get('message')
+
+            if not message:
+                message = "An unexpected error occurred."
+
+            print(message)
+
             return
 
         print("Your account has been created.")
 
         # Retrieve the access and refresh tokens.
-        payload = response.json()
         token = payload.get('access_token')
         refresh_token = payload.get('refresh_token')
 
@@ -132,7 +137,7 @@ class Auth:
     def login(cls):
         """Display a form and attempt to log in it with the given credentials"""
         credentials = {
-            'email': input_until_valid('Enter your email: ', is_valid_email),
+            'email': input_until_valid('Enter your email: ', is_valid_email).lower(),
             'password': getpass().encode('utf-8'),
         }
 
@@ -155,11 +160,8 @@ class Auth:
 
     def refresh(self):
         """Refresh the access token of the currently authenticated user."""
-        print('start refresh...')
-        print('values', self.user, self.token)
         if self.user is None or self.token is None:
             self.__refresh_thread.cancel()
-            print('stop auto refresh')
             return
 
         response = requests.post(
@@ -198,7 +200,7 @@ class Auth:
         self.__user = None
         self.__token = None
 
-    def create_refresh_thread(self, interval=3600) -> threading.Timer:
+    def create_refresh_thread(self, interval=3600) -> Timer:
         """Create a timed thread for automated token refresh.
 
         Args:
@@ -207,7 +209,7 @@ class Auth:
         Returns:
            threading.Timer
         """
-        return threading.Timer(interval, self.refresh)
+        return Timer(interval, self.refresh)
 
     def __get_user(self):
         """

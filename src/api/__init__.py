@@ -13,8 +13,8 @@ migrate = Migrate()
 
 def make_app(configuration: Config = None):
     """Application Factory pattern"""
-    from .resources import Category, Categories
     from src.api.routes.auth import auth
+    from src.api.routes.imports import imports
 
     if configuration is None:  # Use the default configuration.
         configuration = Config()
@@ -30,8 +30,9 @@ def make_app(configuration: Config = None):
     db.init_app(app)
     migrate.init_app(app, db)
 
-    # Register authentication routes
+    # Register routes
     app.register_blueprint(auth)
+    app.register_blueprint(imports)
 
     # Setup the Flask-JWT-Extented extension
     jwt = JWTManager(app)

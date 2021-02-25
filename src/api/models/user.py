@@ -5,7 +5,16 @@ from datetime import datetime, timedelta
 from .blacklist_token import BlacklistToken
 
 class User(db.Model):
-    """Category Model"""
+    """User Model
+
+    Attributes:
+        id (int): The identifier of the user.
+        username (str): The nickname/username of the user.
+        email (str): The email of the user.
+        password (str): The bcrypt hashed value of the user password.
+        created_at (str): Datetime where this user has been created.
+        updated_at (str): Datetime of the last update of this user.
+    """
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
