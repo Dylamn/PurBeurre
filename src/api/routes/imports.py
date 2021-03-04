@@ -86,6 +86,9 @@ def save_products_and_categories(json):
     products_added = 0
 
     for product in json:
+        if not product.get('nutriscore_grade'):
+            continue
+
         categories = product.get('categories').split(',')
         categories_tags = product.get('categories_tags')
 
@@ -122,21 +125,6 @@ def save_products_and_categories(json):
         'new_categories_count': categories_added
     }
 
-
-# {
-#     "stores": "Carrefour,auchan,Leclerc",
-#     "product_name": "Eau de source (Wasser)",
-#     "generic_name": "Eau de source naturelle",
-#     "categories": "Boissons,Eaux,Eaux de sources",
-#     "nutriscore_grade": "a",
-#     "categories_tags": [
-#         "en:beverages",
-#         "en:waters",
-#         "en:spring-waters"
-#     ],
-#     "url": "https://world.openfoodfacts.org/product/3274080005003/eau-cristaline",
-#     "brands": "Cristaline"
-# },
 def update_counts(count, count_to_add):
     """Sum the products added."""
     count['new_products'] += count_to_add['new_products_count']

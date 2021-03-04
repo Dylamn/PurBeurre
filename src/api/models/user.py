@@ -1,10 +1,12 @@
 import jwt
+
 from .. import db
 from src.config import Config
+from .base_model import BaseModel
 from datetime import datetime, timedelta
 from .blacklist_token import BlacklistToken
 
-class User(db.Model):
+class User(db.Model, BaseModel):
     """User Model
 
     Attributes:
@@ -21,34 +23,9 @@ class User(db.Model):
     username = db.Column(db.String(length=128), nullable=False)
     email = db.Column(db.String(length=255), nullable=False)
     password = db.Column(db.String(length=255), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=True)
-    updated_at = db.Column(db.DateTime, nullable=True)
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-
-    @classmethod
-    def make(cls, data):
-        """Instanciate a new model."""
-        return cls(
-            username=data['username'],
-            email=data['email'],
-            password=data['password'],
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
-        )
-
-    @classmethod
-    def create(cls, data):
-        """Save a new model and return the instance."""
-        return cls.make(data).save()
-
-    def save(self):
-        """Save the model to the database."""
-        db.session.add(self)
-        db.session.commit()
-
-        return self
 
     def serialize(self):
         """Return a serialized object data format."""

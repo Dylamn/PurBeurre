@@ -15,6 +15,8 @@ def make_app(configuration: Config = None):
     """Application Factory pattern"""
     from src.api.routes.auth import auth
     from src.api.routes.imports import imports
+    from src.api.resources import Product
+    from src.api.resources import UserSubstitute
 
     if configuration is None:  # Use the default configuration.
         configuration = Config()

@@ -57,3 +57,21 @@ def clear_console() -> None:
 
     system(command)
 
+def pluck(array: list, key: str, assoc=None):
+    """Get values of different dict in a flatten array
+
+        Args:
+            array (list): The array to iterate on.
+            key (str): The key used for getting values.
+            assoc: Append an equal comparaison for each values.
+    """
+    values = []
+
+    for item in array:
+        if key in item:
+            if assoc is not None:
+                values.append(assoc == item[key])
+            else:
+                values.append(item[key])
+
+    return values

@@ -54,7 +54,11 @@ def register():
         return response_body, 400
 
     # Create the new record in the DB.
-    user = UserModel.create(args)
+    user = UserModel.create(
+        username=args['username'],
+        email=args['email'],
+        password=args['password']
+    )
 
     # Then, generate the response with tokens
     response_body = {

@@ -2,7 +2,9 @@
 
 from typing import Union
 from src.cli.components import Auth
+from src.cli.components.search import Search
 from src.cli.components.menus import MainMenu
+
 
 class Cli:
     """CLI application."""
@@ -32,11 +34,13 @@ class Cli:
     welcome_message = "Hello! And welcome to the Pur Beurre CLI."
 
     def __init__(self):
+        """Initialize the CLI."""
         self.__menu = MainMenu()
+        self.__search = Search()
 
     def handle_action(self, action):
         if action == 'search':
-            print('This feature will be available soon!')
+            self.__search.start()
 
         elif self._auth and action == 'registered.products':
             print('This feature will be available soon!')

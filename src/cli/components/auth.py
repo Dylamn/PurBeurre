@@ -25,7 +25,7 @@ class Auth:
 
     __refresh_thread: Timer
 
-    REFRESH_INTERVAL = 2
+    REFRESH_INTERVAL = 3540
 
     ERROR_PREFIX: str = "(Error)"
 
