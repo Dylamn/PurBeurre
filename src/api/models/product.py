@@ -2,7 +2,7 @@ from .. import db
 from .category import Category
 from src.database.products_categories import products_categories
 from .base_model import BaseModel
-from src.utils import pluck
+
 
 class Product(db.Model, BaseModel):
     """Product Model
@@ -49,20 +49,29 @@ class Product(db.Model, BaseModel):
         # `REGEXP` operator works for MySQL and not for all SGBD.
         return cls.query.filter(cls.name.op('REGEXP')(subject))
 
-    def find_substitute(self):
-        """Find one or more substitute which has a better nutriscore_grade
-        """
-        from sqlalchemy import or_
-        category_count = len(self.categories)
+    def find_substitute(self, category_level: int = 0):
+        """Find one or more substitute which has a better nutriscore_grade.
 
-        categories_id = pluck([c.serialize() for c in self.categories if c], 'id', assoc=Category.id)
+        Product categories are ordered in order to have
+        the most specifics categories at the end of the list.
+        """
+        selected_category = None
+        max_index = len(self.categories) - 1
+
+        if not self.categories or len(self.categories) == 0:
+            return None, None
+        elif max_index >= category_level >= 0:
+            selected_category = list(reversed(self.categories))[category_level]
+        else:
+            selected_category = list(reversed(self.categories))[0]
 
         substitutes = Product.query.filter(
-            Product.categories.any(or_(*categories_id))
-        ).all()
+            Product.id != self.id,
+            Product.categories.any(id=selected_category.id),
+            Product.nutriscore_grade <= self.nutriscore_grade
+        ).order_by(Product.nutriscore_grade).all()
 
-        print('sub', substitutes)
-        return category_count
+        return selected_category, substitutes, max_index
 
     def serialize(self):
         """Return a serialized object data format."""

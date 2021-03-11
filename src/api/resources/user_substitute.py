@@ -27,9 +27,19 @@ class UserSubstitute(Resource):
             'substitute_product_id': substitute_id
         })
 
-        return {
-            'message': 'A new substitute has been created.',
-            'user_substitute': user_substitute.serialize()
-        }, 201
+        if not user_substitute.is_recently_created:
+            response = {
+                'error': {
+                    'status': 422,
+                    'message': 'This substitution already exists.'
+                }
+            }, 422
+        else:
+            response = {
+                'message': 'A new substitute has been created.',
+                'user_substitute': user_substitute.serialize()
+            }, 201
+
+        return response
 
 api.add_resource(UserSubstitute, '/users/substitutes')

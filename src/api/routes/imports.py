@@ -115,7 +115,7 @@ def save_products_and_categories(json):
 
             # Create the category if it doesn't exists...
             if category is None:
-                category = Category.create(name=name, tag=tag)
+                category = Category.create(name=name.strip(), tag=tag)
                 categories_added += 1
 
             saved_product.categories.append(category)
