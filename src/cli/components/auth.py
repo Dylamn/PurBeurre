@@ -30,7 +30,15 @@ class Auth:
     ERROR_PREFIX: str = "(Error)"
 
     @property
+    def authenticated(self):
+        """Determines if an user is currently authenticated or not."""
+        return self.__user is not None and \
+               self.__token is not None and \
+               self.__refresh_token is not None
+
+    @property
     def user(self):
+        """Get the authenticated user's information"""
         return self.__user
 
     @property
@@ -50,7 +58,12 @@ class Auth:
         self.__refresh_thread = self.create_refresh_thread(self.REFRESH_INTERVAL)
         self.__refresh_thread.start()
 
-    def __init__(self, token, refresh_token):
+    def __init__(self):
+        self.__user = None
+        self.__token = None
+        self.__refresh_token = None
+
+    def __connect(self, token, refresh_token):
         """Log in the user which correspond to the given token.
 
         Args:
@@ -68,8 +81,7 @@ class Auth:
         # Notify the user that's login is completed.
         print(f"You're now logged in! Welcome {self.user.username}.")
 
-    @classmethod
-    def register(cls):
+    def register(self):
         """Display a form and attempt to register him in the database."""
         data = {
             'username': input_until_valid(
@@ -87,7 +99,7 @@ class Auth:
 
         while not password_is_valid:
             if password is not None:
-                error_prefix_password = cls.ERROR_PREFIX
+                error_prefix_password = self.ERROR_PREFIX
 
             password = getpass(
                 "{} Type your password (min 8 characters): ".format(
@@ -131,10 +143,9 @@ class Auth:
         token = payload.get('access_token')
         refresh_token = payload.get('refresh_token')
 
-        return cls(token, refresh_token)
+        self.__connect(token, refresh_token)
 
-    @classmethod
-    def login(cls):
+    def login(self):
         """Display a form and attempt to log in it with the given credentials"""
         credentials = {
             'email': input_until_valid('Enter your email: ', is_valid_email).lower(),
@@ -156,7 +167,7 @@ class Auth:
         token = payload.get('access_token')
         refresh_token = payload.get('refresh_token')
 
-        return cls(token, refresh_token)
+        return self.__connect(token, refresh_token)
 
     def refresh(self):
         """Refresh the access token of the currently authenticated user."""
@@ -199,6 +210,7 @@ class Auth:
         # Token has been blacklisted. Now, flush the current user
         self.__user = None
         self.__token = None
+        self.__refresh_token = None
 
     def create_refresh_thread(self, interval=3600) -> Timer:
         """Create a timed thread for automated token refresh.

@@ -37,28 +37,29 @@ class Cli:
         """Initialize the CLI."""
         self.__menu = MainMenu()
         self.__search = Search()
+        self._auth = Auth()
 
     def handle_action(self, action):
+        authenticated = self._auth.authenticated
         if action == 'search':
-            self.__search.start()
+            self.__search.start(self._auth)
 
-        elif self._auth and action == 'registered.products':
+        elif authenticated and action == 'registered.products':
             print('This feature will be available soon!')
 
-        elif not self._auth and action == 'register':
-            self._auth = Auth.register()
+        elif not authenticated and action == 'register':
+            self._auth.register()
 
-        elif not self._auth and action == 'login':
-            self._auth = Auth.login()
+        elif not authenticated and action == 'login':
+            self._auth.login()
 
-        elif self._auth and action == 'logout':
+        elif authenticated and action == 'logout':
             self._auth.logout()
-            del self._auth
 
         elif action == 'quit':
             self.__running = False
             # Logout the user before leaving application.
-            if isinstance(self._auth, Auth):
+            if self._auth.authenticated:
                 self._auth.logout()
                 del self._auth
 
@@ -70,7 +71,7 @@ class Cli:
 
         while self.__running:
             # Wait for an user input.
-            action = self.menu.show(self.prompt, bool(self._auth))
+            action = self.menu.show(self.prompt, self._auth.authenticated)
 
             # Dispatch action.
             self.handle_action(action)

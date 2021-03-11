@@ -26,6 +26,7 @@ class Category(db.Model, BaseModel):
         return {
             'id': self.id,
             'name': self.name,
+            'tag': self.tag,
             'created_at': str(self.created_at),
             'updated_at': str(self.updated_at),
         }

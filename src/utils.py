@@ -2,6 +2,7 @@ from pathlib import Path
 from os import path
 from typing import Callable
 
+
 def base_path(relpath: str):
     """Get the path to the base of the project.
 
@@ -28,13 +29,13 @@ def is_valid_email(subject):
 
 
 def input_until_valid(description: str, validator: Callable) -> str:
-
     user_input = input(description)
 
     while not validator(user_input):
         user_input = input("(Error) " + description)
 
     return user_input
+
 
 def gen_auth_header(token: str) -> dict:
     """
@@ -44,6 +45,7 @@ def gen_auth_header(token: str) -> dict:
     :return: dict['str', 'str']
     """
     return {'Authorization': f'Bearer {token}'}
+
 
 def clear_console() -> None:
     """
@@ -57,21 +59,43 @@ def clear_console() -> None:
 
     system(command)
 
-def pluck(array: list, key: str, assoc=None):
+
+def pluck(array: list, key: str):
     """Get values of different dict in a flatten array
 
         Args:
             array (list): The array to iterate on.
             key (str): The key used for getting values.
-            assoc: Append an equal comparaison for each values.
     """
     values = []
 
     for item in array:
         if key in item:
-            if assoc is not None:
-                values.append(assoc == item[key])
-            else:
-                values.append(item[key])
+            values.append(item[key])
 
     return values
+
+
+class BColor:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+    @classmethod
+    def wrap(cls, value, color: str):
+        """Wrap the given string."""
+        color = color.upper()
+
+        if isinstance(value, str) is False:
+            value = str(value)
+
+        if color in cls.__dict__:
+            return cls.__getattribute__(BColor, color) + value + cls.ENDC
+        else:
+            return color + value + cls.ENDC

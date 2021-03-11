@@ -2,6 +2,7 @@ from .. import db
 from .category import Category
 from src.database.products_categories import products_categories
 from .base_model import BaseModel
+from src.utils import pluck
 
 
 class Product(db.Model, BaseModel):
@@ -49,29 +50,29 @@ class Product(db.Model, BaseModel):
         # `REGEXP` operator works for MySQL and not for all SGBD.
         return cls.query.filter(cls.name.op('REGEXP')(subject))
 
-    def find_substitute(self, category_level: int = 0):
+    def find_substitute(self, category_tag: str = None) -> list:
         """Find one or more substitute which has a better nutriscore_grade.
 
         Product categories are ordered in order to have
         the most specifics categories at the end of the list.
         """
-        selected_category = None
-        max_index = len(self.categories) - 1
+        tags = pluck([c.serialize() for c in self.categories], 'tag')
 
-        if not self.categories or len(self.categories) == 0:
-            return None, None
-        elif max_index >= category_level >= 0:
-            selected_category = list(reversed(self.categories))[category_level]
-        else:
-            selected_category = list(reversed(self.categories))[0]
+        if len(tags) < 0:
+            return []
+
+        if category_tag is None:
+            category_tag = tags[-1]
+        elif category_tag not in tags:
+            return []
 
         substitutes = Product.query.filter(
             Product.id != self.id,
-            Product.categories.any(id=selected_category.id),
+            Product.categories.any(tag=category_tag),
             Product.nutriscore_grade <= self.nutriscore_grade
         ).order_by(Product.nutriscore_grade).all()
 
-        return selected_category, substitutes, max_index
+        return substitutes
 
     def serialize(self):
         """Return a serialized object data format."""

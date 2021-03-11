@@ -1,5 +1,5 @@
 from flask import request
-from flask_restful import Resource
+from flask_restful import Resource, reqparse
 from math import ceil
 from src.api.models import Product as ProductModel
 from src.api import api
@@ -18,21 +18,26 @@ class Product(Resource):
 
     @staticmethod
     def _search_substitutes(product_id):
-        category_level = int(request.args.get('category_level', 0))
+        parser = reqparse.RequestParser()
+        # Add fields to validate
+        parser.add_argument(
+            'category_tag', type=str, nullable=True, help="The tag of a category"
+        )
+        args = parser.parse_args()
+        
+        category_tag = args['category_tag']
 
         original_product = ProductModel.query.filter_by(
             id=product_id
             # TODO: create a more friendly 404 response (create a first_or_fail method).
         ).first_or_404()
 
-        category, substitutes, max_depth = original_product.find_substitute(
-            category_level
+        substitutes = original_product.find_substitute(
+            category_tag
         )
 
         body = {
-            'category': category.tag,
-            'depth_level': category_level,
-            'max_depth': max_depth,
+            'category_tag': category_tag,
             'substitutes': [product.serialize() for product in substitutes]
         }
 

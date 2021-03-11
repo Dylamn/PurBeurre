@@ -24,7 +24,7 @@ class SearchMenu:
         self.__select_menu.add_choices(choices)
 
         choice = self.__select_menu.select(
-            f"Please choose an option (use arrow keys): "
+            f"Please choose an option "
         )
 
         # Retrieve the key of the user choice.
