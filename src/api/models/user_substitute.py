@@ -35,7 +35,7 @@ class UserSubstitute(db.Model, BaseModel):
     )
 
     def __init__(self, **kwargs):
-        super(BaseModel, self).__init__(**kwargs)
+        super(UserSubstitute, self).__init__(**kwargs)
 
     def serialize(self):
         return {

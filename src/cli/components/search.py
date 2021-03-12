@@ -2,7 +2,7 @@ import requests
 from src.config import Config
 from src.cli.components.menus import SearchMenu
 from src.cli.entities.product import Product
-from src.utils import input_until_valid, clear_console, BColor
+from src.utils import input_until_valid, clear_console, gen_auth_header, BColor
 from time import sleep
 
 
@@ -12,13 +12,17 @@ class Search:
     def __init__(self):
         """Bootstrap the Search"""
         self.__menu = SearchMenu()
+        self.__auth = None
 
     def start(self, auth=None):
+        self.__auth = auth
         # User choose if he wants to find many products of a category
         # or products which correlate with its input.
         choice = self.choose()
 
         self.handle_choice(choice)
+
+        self.__auth = None
 
     def choose(self):
         choice = self.__menu.show()
@@ -29,7 +33,7 @@ class Search:
         if choice == 'categories':
             self.categories()
 
-        else: # products
+        else:  # products
             self.products()
 
     def products(self):
@@ -40,7 +44,6 @@ class Search:
         # Set up variables used for a loop.
         page = 1
         loop = True
-        product_selected = None
 
         while loop:
             # Clear the console output
@@ -96,8 +99,13 @@ class Search:
             if next_action.isdigit():
                 product_selected = formatted_products[int(next_action)]
 
-                # Leave the loop
-                loop = False
+                go_back = self.show_product(product_selected)
+
+                if go_back:  # If true return to the product listing...
+                    continue
+                else:
+                    # Leave the loop
+                    loop = False
             elif next_action in ['p', 'n']:  # Change the page
                 # Increment the page based on the input.
                 page = page + 1 if next_action == 'n' else page - 1
@@ -110,8 +118,6 @@ class Search:
                 return
         # End while
 
-        self.show_product(product_selected)
-
     def categories(self):
         user_input = input_until_valid(
             "Search a category: ", lambda text_input: not text_input.isdigit()
@@ -120,11 +126,23 @@ class Search:
         print('category')
 
     def show_product(self, product: Product = None):
+        # Clear console output
+        clear_console()
 
-        # TODO: make a overview of the product
-        # print(product.get_details())
-        # A product is selected. Search for substitutes
-        self.find_substitutes(product)
+        print(product.get_details())
+
+        action = input_until_valid(
+            'Do you want to find substitutes for it? (Y/n)\n',
+            lambda s: s.lower() in ['y', 'n']
+        ).lower()
+
+        if action == 'y':
+            # Search for substitutes...
+            self.find_substitutes(product)
+
+            return False
+        else:
+            return True
 
     def find_substitutes(self, original_product: Product = None):
         """Find substitute(s) for the given product"""
@@ -160,12 +178,6 @@ class Search:
             # Clear the console output
             clear_console()
 
-            print(
-                f'Choose a substitute for "{original_product.name}" '
-                f'in the list below (category "{category["name"]}"):',
-                end='\n\n'
-            )
-
             if len(substitutes) == 0:  # Skip to the next category...
                 print(
                     f'No products for the category "{category.get("name")}",',
@@ -181,14 +193,68 @@ class Search:
                     end='\n\n'
                 )
 
-            substitute_choice = int(input_until_valid(
-                "Enter your choice (product number): ",
-                lambda string: string.isdigit() and
-                            len(substitutes) >= int(string) > 0 or
-                            string == 'q'
-            ))
+            print(
+                f'Choose a substitute for "{original_product.name}" '
+                f'in the list above (category "{category["name"]}")',
+                end='\n'
+            )
 
+            substitute_choice = input_until_valid(
+                "Enter your choice (q for cancel): ",
+                lambda string: string == 'q' or string.isdigit() and
+                               len(substitutes) >= int(string) > 0
+            )
+
+            if substitute_choice != 'q' and self.__auth.authenticated is False:
+                print(
+                    "You are not logged in, please create an account or log in"
+                    "to be able to register this substitute.", end='\n\n'
+                )
+                choice = input_until_valid(
+                    'Register: R | Login: L | Abort: Q \n',
+                    lambda s: s.lower() in ['r', 'l', 'q']
+                ).lower()
+
+                # Choices for authentication...
+                if choice == 'q':
+                    return
+                else:  # The user will register / login...
+                    while self.__auth.authenticated is False:
+                        if choice == 'r':
+                            self.__auth.register()
+                        else:
+                            self.__auth.login()
+
+            # Choices for substitute selection...
             if substitute_choice == 'q':
                 return
+            elif substitute_choice.isdigit() and self.__auth.authenticated:
+                substitute_selected = substitutes[int(substitute_choice)]
+
+                self.register_substitute(original_product, substitute_selected)
+
+                return
+
+    def register_substitute(self, original: Product, substitute: Product):
+        """Register"""
+        response = requests.post(f'{Config.API_URL}/users/substitutes', {
+            'original_product_id': original.get_key(),
+            'substitute_id': substitute.get_key()
+        }, headers=gen_auth_header(self.__auth.token))
+
+        payload = response.json()
+
+        if "message" in payload:
+            if response.status_code == 201:
+                print(BColor.wrap(payload.get('message'), 'okgreen'))
             else:
-                break
+                print(BColor.wrap(payload.get('message'), 'fail'))
+        else:
+            print(
+                BColor.wrap(
+                    "An unexpected error occurred. Please try again later.",
+                    'fail'
+                )
+            )
+
+        return

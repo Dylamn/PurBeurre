@@ -56,7 +56,7 @@ class BaseModel(object):
         if model:
             return model
 
-        return cls().create(**search, **kwargs)
+        return cls().create(**{**search, **kwargs})
 
     def touch(self):
         """Touch model timestamps."""

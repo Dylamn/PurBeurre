@@ -1,3 +1,6 @@
+from src.utils import pluck
+
+
 class Product(object):
     """Class which represents a product
 
@@ -27,6 +30,11 @@ class Product(object):
         return value if value else 'N/A'
 
     @property
+    def nutriscore(self):
+        """Return the nutriscore of the product"""
+        return self.__getattribute__('_nutriscore_grade')
+
+    @property
     def stores(self):
         """Get the stores where the product can be found."""
         value = self.__getattribute__('_stores')
@@ -50,19 +58,24 @@ class Product(object):
             self.__setattr__(f'_{key}', value)
 
     def get_details(self):
-        return f'Name: {self.name}' \
-               f'Generic name: {self.generic_name}' \
-               f'Brands: {self.brands}'
+        """Return the full details of the product."""
+        categories_name = ', '.join(pluck(self.categories, 'name'))
+
+        return f'Name: {self.name} | Nutriscore: {self.nutriscore}\n' \
+               f'Generic name: {self.generic_name}\n\n' \
+               f'Brands: {self.brands}\n\n' \
+               f'Stores: {self.brands}\n\n' \
+               f'Categories:\n{categories_name}\n\n' \
+               f'URL Open Food Facts:\n{self._url}\n'
 
     def to_string(self):
-        """Return a string representation of the product."""
+        """Return a short string representation of the product."""
         return self.__str__()
 
     def __repr__(self):
         return f"<Product {self.get_key()}/>"
 
     def __str__(self):
-        return f'{self._name}' \
-               f' | Nutriscore {self._nutriscore_grade.upper()} \n' \
+        return f'{self.name} | Nutriscore {self.nutriscore.upper()} \n' \
                f'Stores: {self.stores} | Brands: {self.brands} \n' \
-               f'OpenFoodFacts URL: {self._url}'
+               f'OpenFoodFacts URL: \n{self._url}'

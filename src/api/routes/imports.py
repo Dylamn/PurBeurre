@@ -95,14 +95,13 @@ def save_products_and_categories(json):
         # Create the product
         saved_product = Product.first_or_create(
             search={
-                'name': product.get('product_name')
+                'name': product.get('product_name').strip()
             },
-            name=product.get('product_name'),
             generic_name=product.get('generic_name'),
             brands=product.get('brands'),
             stores=product.get('stores'),
             nutriscore_grade=product.get('nutriscore_grade'),
-            url=product.get('url'),
+            url=product.get('url').strip(),
         )
 
         if saved_product.is_recently_created:

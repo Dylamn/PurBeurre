@@ -4,6 +4,7 @@ from typing import Union
 from src.cli.components import Auth
 from src.cli.components.search import Search
 from src.cli.components.menus import MainMenu
+from src.cli.components.substitute import Substitute
 
 
 class Cli:
@@ -11,11 +12,11 @@ class Cli:
 
     __running = False
 
-    __menu: MainMenu
+    _menu: MainMenu
 
     @property
     def menu(self):
-        return self.__menu
+        return self._menu
 
     __prompt = "{}"
 
@@ -35,17 +36,18 @@ class Cli:
 
     def __init__(self):
         """Initialize the CLI."""
-        self.__menu = MainMenu()
-        self.__search = Search()
+        self._menu = MainMenu()
+        self._search = Search()
         self._auth = Auth()
+        self._substitutes = Substitute()
 
     def handle_action(self, action):
         authenticated = self._auth.authenticated
         if action == 'search':
-            self.__search.start(self._auth)
+            self._search.start(self._auth)
 
         elif authenticated and action == 'registered.products':
-            print('This feature will be available soon!')
+            self._substitutes.retrieve_substitutes(self._auth)
 
         elif not authenticated and action == 'register':
             self._auth.register()

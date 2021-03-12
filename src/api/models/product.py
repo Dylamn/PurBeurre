@@ -45,10 +45,9 @@ class Product(db.Model, BaseModel):
     @classmethod
     def search(cls, search_input: str):
         """Apply a regexp constraint to the where clause on the name column."""
-        subject = "^" + "(.*)".join(list(search_input)) + "(.*)$"
 
         # `REGEXP` operator works for MySQL and not for all SGBD.
-        return cls.query.filter(cls.name.op('REGEXP')(subject))
+        return cls.query.filter(cls.name.op('REGEXP')(search_input))
 
     def find_substitute(self, category_tag: str = None) -> list:
         """Find one or more substitute which has a better nutriscore_grade.
