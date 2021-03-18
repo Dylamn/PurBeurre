@@ -1,11 +1,11 @@
 from .. import db
 from .category import Category
 from src.database.products_categories import products_categories
-from .base_model import BaseModel
+from .mixins import BaseModel, Searchable
 from src.utils import pluck
 
 
-class Product(db.Model, BaseModel):
+class Product(db.Model, BaseModel, Searchable):
     """Product Model
 
     Attributes:
@@ -43,11 +43,12 @@ class Product(db.Model, BaseModel):
         super(Product, self).__init__(**kwargs)
 
     @classmethod
-    def search(cls, search_input: str):
+    def search(cls, search_input: str, operator='REGEXP'):
         """Apply a regexp constraint to the where clause on the name column."""
 
         # `REGEXP` operator works for MySQL and not for all SGBD.
-        return cls.query.filter(cls.name.op('REGEXP')(search_input))
+        # For example, in PostgreSQL, it should be a tilde `~`.
+        return cls.query.filter(cls.name.op(operator)(search_input))
 
     def find_substitute(self, category_tag: str = None) -> list:
         """Find one or more substitute which has a better nutriscore_grade.

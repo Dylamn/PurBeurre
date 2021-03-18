@@ -2,6 +2,7 @@ from flask import request
 from flask_restful import Resource, reqparse
 from math import ceil
 from src.api.models import Product as ProductModel
+from src.api.models import Category as CategoryModel
 from src.api import api
 
 
@@ -46,14 +47,20 @@ class Product(Resource):
     @staticmethod
     def _search_products():
         page = int(request.args.get('page', 1))
-        per_page = request.args.get('per_page', 10)
+        per_page = int(request.args.get('per_page', 10))
         search_query = request.args.get('q')
+        category_tag = request.args.get('category_tag')
 
         # Start querying the model...
         if search_query:
             query = ProductModel.search(search_query)
         else:
             query = ProductModel.query
+
+        if category_tag is not None:
+            query = query.join(ProductModel.categories, aliased=True).filter(
+                CategoryModel.tag == category_tag
+            )
 
         products = query.paginate(page, per_page, error_out=False)
 

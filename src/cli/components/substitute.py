@@ -33,7 +33,7 @@ class Substitute:
 
         for i, (original, substitute) in enumerate(pairs, start=1):
             print(f"Pair n°{BColor.wrap(i, 'okcyan')}:")
-            print("Original product", original, end='\n\n')
-            print("Substitued by", substitute, '\n\n')
+            print("Original product:", original, end='\n\n')
+            print("Substitued by:", substitute, '\n\n')
 
 

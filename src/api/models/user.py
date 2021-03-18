@@ -2,9 +2,10 @@ import jwt
 
 from .. import db
 from src.config import Config
-from .base_model import BaseModel
+from .mixins.base_model import BaseModel
 from datetime import datetime, timedelta
 from .blacklist_token import BlacklistToken
+
 
 class User(db.Model, BaseModel):
     """User Model

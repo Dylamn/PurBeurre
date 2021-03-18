@@ -1,7 +1,7 @@
 from src.api import db
-from .base_model import BaseModel
+from .mixins import BaseModel, Searchable
 
-class Category(db.Model, BaseModel):
+class Category(db.Model, BaseModel, Searchable):
     """Category Model
 
     Attributes:
@@ -12,6 +12,7 @@ class Category(db.Model, BaseModel):
     """
     __name__ = 'Category'
     __tablename__ = 'categories'
+    __metaclass__ = Searchable
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(length=255), nullable=False)

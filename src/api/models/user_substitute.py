@@ -1,5 +1,5 @@
 from .. import db
-from .base_model import BaseModel
+from .mixins.base_model import BaseModel
 
 
 class UserSubstitute(db.Model, BaseModel):

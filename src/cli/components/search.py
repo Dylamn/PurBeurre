@@ -2,6 +2,7 @@ import requests
 from src.config import Config
 from src.cli.components.menus import SearchMenu
 from src.cli.entities.product import Product
+from src.cli.entities.category import Category
 from src.utils import input_until_valid, clear_console, gen_auth_header, BColor
 from time import sleep
 
@@ -30,29 +31,45 @@ class Search:
         return choice
 
     def handle_choice(self, choice):
-        if choice == 'categories':
-            self.categories()
-
-        else:  # products
-            self.products()
-
-    def products(self):
         user_input = input_until_valid(
-            "Search a product: ", lambda text_input: not text_input.isdigit()
+            f"Search for {choice}: ",
+            lambda text_input: not text_input.isdigit()
         )
+
+        if choice == 'products':
+            self.get_resources('product', search=user_input)
+
+        else:  # categories
+            self.get_resources('category', search=user_input)
+
+
+
+    def get_resources(self, resource_type, search=None, category_tag=None):
 
         # Set up variables used for a loop.
         page = 1
         loop = True
 
+        # Determines if we're going to pull products or categories...
+        resource = 'products' if resource_type == 'product' else 'categories'
+
         while loop:
             # Clear the console output
             clear_console()
 
-            response = requests.get(f'{Config.API_URL}/products', {
-                "q": user_input,
-                "page": page
-            })
+            # parameters for the API call.
+            params = {
+                "page": page,
+                "per_page": 10,
+            }
+
+            if search is not None:
+                params['q'] = search
+
+            if category_tag is not None:
+                params['category_tag'] = category_tag
+
+            response = requests.get(f'{Config.API_URL}/{resource}', params)
 
             if response.status_code != 200:
                 print(
@@ -66,18 +83,18 @@ class Search:
             body = response.json()
             last_page = body.get('meta')['last_page']
 
-            if len(body.get('products')) == 0:
-                print('No product found. Back to the main menu...')
+            if len(body.get(resource)) == 0:
+                print(f'No {resource} found. Back to the main menu...')
                 return
 
-            formatted_products = {
-                i: Product(**p)
-                for i, p in enumerate(body.get('products'), start=1)
+            formatted_resources = {
+                i: Product(**r) if resource == 'products' else Category(**r)
+                for i, r in enumerate(body.get(resource), start=1)
             }
 
-            for index, product in formatted_products.items():
+            for index, item in formatted_resources.items():
                 print(
-                    f'{BColor.wrap(index, "okcyan")}. {product.to_string()}',
+                    f'{BColor.wrap(index, "okcyan")}. {item.to_string()}',
                     end='\n\n'
                 )
 
@@ -93,13 +110,21 @@ class Search:
                 'Select a product or switch page: ',
                 lambda inputstr: inputstr in ['p', 'n', 'q'] or
                                  inputstr.isdigit() and
-                                 0 < int(inputstr) <= len(formatted_products)
+                                 0 < int(inputstr) <= len(formatted_resources)
             )
 
             if next_action.isdigit():
-                product_selected = formatted_products[int(next_action)]
+                resource_selected = formatted_resources[int(next_action)]
 
-                go_back = self.show_product(product_selected)
+                if resource == 'products':
+                    go_back = self._show_product(resource_selected)
+                else:
+                    # Recursive call...
+                    self.get_resources(
+                        'product',
+                        category_tag=resource_selected.tag
+                    )
+                    go_back = False
 
                 if go_back:  # If true return to the product listing...
                     continue
@@ -118,14 +143,9 @@ class Search:
                 return
         # End while
 
-    def categories(self):
-        user_input = input_until_valid(
-            "Search a category: ", lambda text_input: not text_input.isdigit()
-        )
+    def _show_product(self, product: Product = None):
+        """Show all details of the given product."""
 
-        print('category')
-
-    def show_product(self, product: Product = None):
         # Clear console output
         clear_console()
 

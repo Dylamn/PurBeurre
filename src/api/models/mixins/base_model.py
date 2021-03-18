@@ -1,4 +1,4 @@
-from .. import db
+from src.api import db
 from datetime import datetime
 from sqlalchemy.ext.declarative import declared_attr
 

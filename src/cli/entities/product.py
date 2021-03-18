@@ -5,12 +5,13 @@ class Product(object):
     """Class which represents a product
 
     Attributes:
-        _id (int): The key identifier of the user.
-        _name (str): The username of the user.
-        _generic_name (str): The email of the user.
+        _id (int): The key identifier of the product.
+        _name (str): The name of the product.
+        _generic_name (str): A generic name which represent the product.
         _brands (str): The brands of the product.
         _stores (str): A string containing the different stores where the product can be available.
-        _updated_at (str): The datetime of the last update of the user.
+        _updated_at (str): The datetime when the product has been created.
+        _updated_at (str): The datetime of the last update of the product.
     """
 
     def get_key(self):
