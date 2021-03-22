@@ -11,7 +11,7 @@ to search, compare foodstuffs or even suggest (healthier) substituts for any.
 
 ## Installation
 This application requires some packages (especially Flask) in order to run. 
-To do that, you must them via pip. I recommend using avirtual environment, 
+To do that, you must install them via pip. I recommend using a virtual environment, 
 you can either use the [venv](https://docs.python.org/3.8/library/venv.html)
 which comes out of the box with python since the 3.3 version, 
 [virtualenv](https://virtualenv.pypa.io/en/latest/) or any tool you want.
@@ -30,7 +30,7 @@ After you've done that, use the following command to install the dependencies
 listed in the `requirements.txt` file:
 
 ```shell
-$ python3 -m pip install -r requirements.txt
+$ python -m pip install -r requirements.txt
 ```
 
 ## Run the application
@@ -39,14 +39,14 @@ To run the API, execute it with the python interpreter throught the manager:
 
 ```shell
 # This command will start the API.
-$ python3 manage.py run
+$ python manage.py run
 ```
 
 > You'll always need to start the API in order to use the CLI properly.
 
 When it's done, you can start the CLI by passing it to the Python interpreter:
 ```shell
-$ python3 cli.py
+$ python cli.py
 ```
 
 ## Features

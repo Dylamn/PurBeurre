@@ -3,6 +3,7 @@ from flask_restful import Api
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from src.api.exceptions.handlers import register_handlers
+from src.api.exceptions.invalid_token import InvalidToken
 from flask_jwt_extended import JWTManager
 from src.config import Config
 
@@ -41,10 +42,13 @@ def make_app(configuration: Config = None):
     @jwt.token_in_blacklist_loader
     def check_token_in_blacklist(decrypted_token):
         from .models import BlacklistToken
-
+        print('fjedsklfehjzilfrkzelhjdfezfzejl')
         jti = decrypted_token['jti']
 
-        return BlacklistToken.check_blacklist(jti)
+        if BlacklistToken.check_blacklist(jti):
+            raise InvalidToken("Token is blacklisted. Please log in again.")
+
+        return False
 
     # Finally, initialize the api.
     api.init_app(app)

@@ -32,3 +32,4 @@ class Config:
     JWT_SECRET_KEY = getenv('JWT_SECRET_KEY', None)
     JWT_ALGO = getenv('JWT_ALGO', 'HS256')
     JWT_TTL = int(getenv('JWT_TTL', 3600))
+    JWT_BLACKLIST_ENABLED=True

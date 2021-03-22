@@ -22,6 +22,8 @@ class Cli:
 
     @property
     def prompt(self):
+        """Display the username if an user is authenticated. Else display `guest`
+        """
         if self._auth and self._auth.user:
             return self.__prompt.replace('{}', self._auth.user.username)
 
@@ -35,7 +37,7 @@ class Cli:
     welcome_message = "Hello! And welcome to the Pur Beurre CLI."
 
     def __init__(self):
-        """Initialize the CLI."""
+        """Initialize the CLI and its components."""
         self._menu = MainMenu()
         self._search = Search()
         self._auth = Auth()
