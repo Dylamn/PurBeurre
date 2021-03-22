@@ -40,7 +40,6 @@ def make_app(configuration: Config = None):
 
     @jwt.token_in_blacklist_loader
     def check_token_in_blacklist(decrypted_token):
-        # TODO: Callback doesn't work, check why
         from .models import BlacklistToken
 
         jti = decrypted_token['jti']

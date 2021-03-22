@@ -76,6 +76,11 @@ class BaseModel(object):
 
         return self
 
+    def delete(self):
+        """Delete the model from the database."""
+        db.session.delete(self)
+        db.session.commit()
+
     def serialize(self):
         """Return a serialized object data format."""
         raise NotImplementedError()

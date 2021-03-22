@@ -32,7 +32,7 @@ class Search:
 
     def handle_choice(self, choice):
         user_input = input_until_valid(
-            f"Search for {choice}: ",
+            f"Search {choice}: ",
             lambda text_input: not text_input.isdigit()
         )
 
