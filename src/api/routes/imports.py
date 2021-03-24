@@ -36,8 +36,8 @@ def import_products_and_categories():
 
     if not response.ok:
         return {
-            'message': 'An error occurred when connecting to the Open Food Facts API. Please try again later.'
-        }, 500
+                   'message': 'An error occurred when connecting to the Open Food Facts API. Please try again later.'
+               }, 500
 
     payload = response.json()
 
@@ -62,7 +62,8 @@ def import_products_and_categories():
         # Stop if the response status code is not 200.
         if not response.ok:
             return {
-                'message': 'An error occurred when connecting to the Open Food Facts API. Please try again later.'
+               'message': 'An error occurred when connecting to the Open Food Facts API. '
+                          'Please try again later.'
             }, 500
 
         payload = response.json()
@@ -70,6 +71,9 @@ def import_products_and_categories():
         added = save_products_and_categories(payload.get('products'))
 
         count = update_counts(count, count_to_add=added)
+
+    # Log the numbers of products/categories added.
+    print(count)
 
     return {'message': 'Import was a sucess.', 'count': count}, 200
 
@@ -123,6 +127,7 @@ def save_products_and_categories(json):
         'new_products_count': products_added,
         'new_categories_count': categories_added
     }
+
 
 def update_counts(count, count_to_add):
     """Sum the products added."""

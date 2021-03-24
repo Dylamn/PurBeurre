@@ -42,8 +42,6 @@ class Search:
         else:  # categories
             self.get_resources('category', search=user_input)
 
-
-
     def get_resources(self, resource_type, search=None, category_tag=None):
 
         # Set up variables used for a loop.
@@ -84,7 +82,9 @@ class Search:
             last_page = body.get('meta')['last_page']
 
             if len(body.get(resource)) == 0:
-                print(f'No {resource} found. Back to the main menu...')
+                print(BColor.wrap(
+                    f'No {resource} found. Back to the main menu...', 'warning')
+                )
                 return
 
             formatted_resources = {
@@ -199,10 +199,11 @@ class Search:
             clear_console()
 
             if len(substitutes) == 0:  # Skip to the next category...
-                print(
-                    f'No products for the category "{category.get("name")}",',
-                    f'skipping...'
-                )
+                print(BColor.wrap(
+                    f'No products for the category "{category.get("name")}", '
+                    f'skipping...',
+                    'warning'
+                ))
                 # Wait 1 second to let the time for the user to see the message.
                 sleep(1)
                 continue
@@ -220,12 +221,12 @@ class Search:
             )
 
             substitute_choice = input_until_valid(
-                "Enter your choice (q for cancel): ",
-                lambda string: string == 'q' or string.isdigit() and
+                "Enter your choice (q for cancel, n for the next category): ",
+                lambda string: string in ['q', 'n'] or string.isdigit() and
                                len(substitutes) >= int(string) > 0
             )
 
-            if substitute_choice != 'q' and self.__auth.authenticated is False:
+            if substitute_choice.isdigit() and not self.__auth.authenticated:
                 print(
                     "You are not logged in, please create an account or log in"
                     "to be able to register this substitute.", end='\n\n'
@@ -248,12 +249,18 @@ class Search:
             # Choices for substitute selection...
             if substitute_choice == 'q':
                 return
+            elif substitute_choice == 'n':
+                continue
             elif substitute_choice.isdigit() and self.__auth.authenticated:
                 substitute_selected = substitutes[int(substitute_choice)]
 
                 self.register_substitute(original_product, substitute_selected)
 
                 return
+
+        print(BColor.wrap(
+            'No more categories available, back to the menu...', 'warning')
+        )
 
     def register_substitute(self, original: Product, substitute: Product):
         """Register"""

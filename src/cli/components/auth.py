@@ -5,7 +5,7 @@ from threading import Timer
 from getpass import getpass
 from src.config import Config
 from src.cli.entities.user import User
-from src.utils import is_valid_email, input_until_valid, gen_auth_header
+from src.utils import is_valid_email, input_until_valid, gen_auth_header, BColor
 
 
 class Auth:
@@ -25,9 +25,9 @@ class Auth:
 
     __refresh_thread: Timer
 
-    REFRESH_INTERVAL = 3540
+    REFRESH_INTERVAL = 3540  # means ~59 minutes
 
-    ERROR_PREFIX: str = "(Error)"
+    ERROR_PREFIX: str = "(Error) "
 
     @property
     def authenticated(self):
@@ -79,7 +79,10 @@ class Auth:
         self.__refresh_thread.start()
 
         # Notify the user that's login is completed.
-        print(f"You're now logged in! Welcome {self.user.username}.")
+        print(BColor.wrap(
+            f"You're now logged in! Welcome {self.user.username}.",
+            'okgreen'
+        ))
 
     def register(self):
         """Display a form and attempt to register him in the database."""
@@ -102,7 +105,7 @@ class Auth:
                 error_prefix_password = self.ERROR_PREFIX
 
             password = getpass(
-                "{} Type your password (min 8 characters): ".format(
+                "{}Type your password (min 8 characters): ".format(
                     error_prefix_password
                 )
             )
@@ -133,7 +136,7 @@ class Auth:
             if not message:
                 message = "An unexpected error occurred."
 
-            print(message)
+            print(BColor.wrap(message, 'fail'))
 
             return
 

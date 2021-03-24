@@ -39,10 +39,15 @@ def make_app(configuration: Config = None):
     # Setup the Flask-JWT-Extented extension
     jwt = JWTManager(app)
 
+    @app.route('/')
+    def root():
+        """This endpoint is used by the CLI to determines if the API is available or not."""
+        return {}, 200
+
     @jwt.token_in_blacklist_loader
     def check_token_in_blacklist(decrypted_token):
+        """Check whether an access token is blacklisted or not."""
         from .models import BlacklistToken
-        print('fjedsklfehjzilfrkzelhjdfezfzejl')
         jti = decrypted_token['jti']
 
         if BlacklistToken.check_blacklist(jti):
