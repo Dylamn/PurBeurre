@@ -1,16 +1,46 @@
-# Use root/example as user/password credentials
 version: '3.1'
 
-services:
+networks:
+  purbeurre:
+    driver: bridge
 
+services:
   db:
     image: mysql:8.0.22
+    container_name: purbeurre-db
     command: --default-authentication-plugin=mysql_native_password
     restart: always
 
     ports:
     - "3306:3306"
 
+    networks:
+      - purbeurre
+
     environment:
-      MYSQL_ROOT_PASSWORD: example
-      MYSQL_DATABASE: pur_beurre
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+  api:
+    image: purbeurre-api:latest
+    container_name: purbeurre-api
+    restart: always
+
+    env_file:
+      .env.docker
+
+    ports:
+    - "5000:5000"
+
+    networks:
+      - purbeurre
+
+    depends_on:
+      db:
+        condition: service_healthy

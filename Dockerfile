@@ -15,6 +15,8 @@ RUN pip3 install prompt-toolkit==1.0.15 && \
 
 COPY . /app
 
-ENTRYPOINT [ "python" ]
+EXPOSE 5000
 
-CMD [ "manage.py", "run" ]
+ENTRYPOINT [ "python3" ]
+
+CMD [ "manage.py", "run", "--host", "0.0.0.0", "--port", "5000"]
