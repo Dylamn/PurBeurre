@@ -13,6 +13,8 @@ venv/
 # Environment files
 .env
 .env.backup
+.env.local
+.env.docker
 
 # Builds
 build/
