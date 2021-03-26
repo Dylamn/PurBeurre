@@ -1,0 +1,8 @@
+# Dependencies used by the client and the API
+-r common_requirements.txt
+
+# Dependencies used by the client
+pkg-resources==0.0.0
+prompt-toolkit==1.0.15
+SelectMenu==1.0.0b2
+wcwidth==0.2.5
