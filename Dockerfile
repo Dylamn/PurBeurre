@@ -19,4 +19,4 @@ EXPOSE 5000
 
 ENTRYPOINT [ "python3" ]
 
-CMD [ "manage.py", "run", "--host", "0.0.0.0", "--port", "5000"]
+CMD [ "manage.py", "run", "--host", "0.0.0.0", "--port", "5000" ]

@@ -8,7 +8,7 @@ load_dotenv(base_path('.env'))
 
 class Config:
     ENV = getenv('APP_ENV', 'production')
-    FLASK_DEBUG = getenv('APP_DEBUG', False)
+    FLASK_DEBUG = getenv('FLASK_DEBUG', False)
 
     # Database
     DB_CONNECTION = getenv('DB_CONNECTION', 'mysql')

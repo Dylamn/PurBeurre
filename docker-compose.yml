@@ -12,7 +12,7 @@ services:
     restart: always
 
     ports:
-    - "3306:3306"
+      - "3306:3306"
 
     networks:
       - purbeurre
@@ -22,7 +22,7 @@ services:
       MYSQL_DATABASE: ${DB_DATABASE}
 
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent" ]
       interval: 2s
       timeout: 5s
       retries: 10
@@ -33,10 +33,13 @@ services:
     restart: always
 
     env_file:
-      .env.docker
+      .env
+
+    environment:
+      DB_HOST: db # The name of the service above.
 
     ports:
-    - "5000:5000"
+      - "5000:5000"
 
     networks:
       - purbeurre
