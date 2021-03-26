@@ -9,6 +9,14 @@ Replace the Nutella with a hazelnut paste, yes, but which one? In which shop to 
 The idea of this application is to provide a handy tool for customers 
 to search, compare foodstuffs or even suggest (healthier) substituts for any.
 
+## Features
+The main purpose of the application is to provide you a research tool for 
+food products.
+
+The application includes user accounts which, are not required in order to use
+the application. It just adds an extra feature that's you can register products,
+so you can retrieve them easily without worrying about the name of each one.
+
 ## Installation
 The project has two parts, an API (Application Programming Interface), and a CLI (Command Line Interface).
 Below are instructions that will help you to install them.
@@ -35,8 +43,15 @@ $ docker -v && docker-compose -v
 If there're not installed, you can consult the official documentation 
 [here](https://docs.docker.com/get-docker/).
 
-move to the root of the project and run 
-the following command:
+move to the root of the project and run the following command:
+```shell
+$ docker build -t purbeurre-api .
+```
+> This will create the docker image of the API. This image is currently not
+> published on the docker hub.
+
+When the image build is finished, you can build the services 
+in the `docker-compose.yml` file by running the command below:
 ````shell
 $ docker-compose up -d
 ````
@@ -47,8 +62,20 @@ Then, when both services have started, you can use the following command to see 
 $ docker ps -f name=purbeurre
 ````
 
-Finally, you can install the dependencies used by the client 
-by running the following command:
+Finally, you can install the dependencies used by the client.
+
+To do that, you must install them via pip. I recommend using a virtual environment, 
+you can either use the [venv](https://docs.python.org/3.8/library/venv.html)
+which comes out of the box with python since the 3.3 version, 
+[virtualenv](https://virtualenv.pypa.io/en/latest/) or any tool you want.
+
+With `venv`, you can do like so:
+````shell
+$ python3 -m venv my_venv && source my_venv/bin/activate
+````
+> You can replace `my_venv` by the name of your choice.
+
+Now, you can install the CLI dependencies by running the following command:
 ````shell
 $ pip install -r requirements/cli_requirements.txt
 ````
@@ -81,27 +108,25 @@ $ pip install -r requirements.txt
 
 ## Run the application
 When the packages are installed, you'll need to launch the API used by the client.
-To run the API, execute it with the python interpreter throught the manager:
-
+If you installed the API manually, run it with the python interpreter throught the manager:
 ```shell
 # This command will start the API.
 $ python manage.py run
 ```
 
-> You'll always need to start the API in order to use the CLI properly.
+If you installed it with docker, check that the containers are running with the following command:
+`````shell
+$ docker ps -f name=purbeurre
+`````
+If nothing is printed, you can restart them by running the ``docker-compose up`` command.
+
+> You'll always need to start the API in order to use the CLI properly. If the CLI can't
+> communicate with the API, an error will be printed, and the client will stop running.
 
 When it's done, you can start the CLI by passing it to the Python interpreter:
 ```shell
 $ python cli.py
 ```
-
-## Features
-The main purpose of the application is to provide you a research tool for 
-food products.
-
-The application includes user accounts which, are not required in order to use
-the application. It just adds an extra feature that's you can register products,
-so you can retrieve them easily without worrying about the name of each one.
 
 ## Troubleshooting
 When installing python dependencies, sometimes a problem can occurred for the 
